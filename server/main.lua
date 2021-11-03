@@ -30,15 +30,19 @@ end)
 
 -- @threads
 Citizen.CreateThread(function()
-    Whitelist.Fetch(function(result, count)
-        if result then
-            table.foreach(result, function(v, k)
-                Whitelist.__data[v.identifier] = v
-            end)
+    if Settings.MysqlLibrairie == "oxmysql" or Settings.MysqlLibrairie == "ghmattimysql" then
+        Whitelist.Fetch(function(result, count)
+            if result then
+                table.foreach(result, function(v, k)
+                    Whitelist.__data[v.identifier] = v
+                end)
 
-            Main.__logger.Log('info', ''..count..' whitelisted users have been loaded')
-        end
-    end)
+                Main.__logger.Log('info', ''..count..' whitelisted users have been loaded')
+            end
+        end)
+    else
+        Main.__logger.Log('error', 'Bad mysql librairie, check out your settings file.')
+    end
 end)
 
 -- @commands

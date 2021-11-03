@@ -7,19 +7,32 @@ Whitelist.__logger = Logger.RegisterController('Whitelist Controller')
 Whitelist.Fetch = function(callback)
     local count = 0
 
-    exports.oxmysql:fetch('SELECT * FROM users_whitelist', {}, function(data)
-        if data then
-            count = #data
-        end
+    if Settings.MysqlLibrairie == "oxmysql" then 
+        exports.oxmysql:fetch('SELECT * FROM users_whitelist', {}, function(data)
+            if data then
+                count = #data
+            end
 
-        return callback(data, count)
-    end)
+            return callback(data, count)
+        end)
+    elseif Settings.MysqlLibrairie == "ghmattimysql" then
+        exports.ghmattimysql:execute('SELECT * FROM users_whitelist', {}, function(data)
+            if data then
+                count = #data
+            end
+
+            return callback(data, count)
+        end)
+    end
 end
 
 Whitelist.Add = function(identifier, admin)
     if not Whitelist.__data[identifier] then
-        exports.oxmysql:execute('INSERT INTO users_whitelist (identifier, admin) VALUES (?, ?)', { identifier, admin })
-
+        if Settings.MysqlLibrairie == "oxmysql" then 
+            exports.oxmysql:execute('INSERT INTO users_whitelist (identifier, admin) VALUES (?, ?)', { identifier, admin })
+        elseif Settings.MysqlLibrairie == "ghmattimysql" then 
+            exports.ghmattimysql:execute('INSERT INTO users_whitelist (identifier, admin) VALUES (?, ?)', { identifier, admin })
+        end
         return true
     end
 
@@ -28,7 +41,11 @@ end
 
 Whitelist.Remove = function(identifier)
     if Whitelist.__data[identifier] then
-        exports.oxmysql:execute('DELETE FROM users_whitelist WHERE identifier = :identifier', { identifier = identifier })
+        if Settings.MysqlLibrairie == "oxmysql" then 
+            exports.oxmysql:execute('DELETE FROM users_whitelist WHERE identifier = :identifier', { identifier = identifier })
+        elseif Settings.MysqlLibrairie == "ghmattimysql" then 
+            exports.ghmattimysql:execute('DELETE FROM users_whitelist WHERE identifier = :identifier', { identifier = identifier })
+        end
 
         return true
     end
@@ -37,9 +54,15 @@ Whitelist.Remove = function(identifier)
 end
 
 Whitelist.UpdateDiscord = function(identifier, discord, name, callback)
-    exports.oxmysql:execute('UPDATE users_whitelist SET discord = :discord, name = :name WHERE identifier = :identifier', { discord = discord, name = name, identifier = identifier }, function()
-        return callback()
-    end)
+    if Settings.MysqlLibrairie == "oxmysql" then 
+        exports.oxmysql:execute('UPDATE users_whitelist SET discord = :discord, name = :name WHERE identifier = :identifier', { discord = discord, name = name, identifier = identifier }, function()
+            return callback()
+        end)
+    elseif Settings.MysqlLibrairie == "ghmattimysql" then 
+        exports.ghmattimysql:execute('UPDATE users_whitelist SET discord = :discord, name = :name WHERE identifier = :identifier', { discord = discord, name = name, identifier = identifier }, function()
+            return callback()
+        end)
+    end
 end
 
 Whitelist.Check = function(identifier, discord, name)
