@@ -42,32 +42,46 @@ Citizen.CreateThread(function()
 end)
 
 -- @commands
-Core.RegisterCommand('addwh', 'Add a player to the whitelist', {
-    { name = 'identifier', help = 'Identifier' },
-}, true, function(source, args, player)
-    if Whitelist.Add(args[1], player.data.name) then
-        Main.__logger.Log('warning', 'Admin '..player.data.name..' added '..args[1]..' to the whitelist')
-    end
-end, 'mod')
+RegisterCommand('addwh', function(source, args, raw)
+    local player = source
+    local playerName = Whitelist.GetName(player)
+    local playerSteam = Whitelist.GetIdentifier(player, 'steam')
 
-Core.RegisterCommand('removewh', 'Remove a player from the whitelist', {
-    { name = 'identifier', help = 'Identificador' },
-}, true, function(source, args, player)
-    if Whitelist.Remove(args[1]) then
-        Main.__logger.Log('warning', 'Admin '..player.data.name..' removed '..args[1]..' to the whitelist')
-    end
-end, 'mod')
-
-Core.RegisterCommand('refreshwh', 'Refresh the whitelist', {}, false, function(source, args, player)
-    Whitelist.__data = { }
-
-    Whitelist.Fetch(function(result, count)
-        if result then
-            table.foreach(result, function(v, k)
-                Whitelist.__data[v.identifier] = v
-            end)
-
-            Main.__logger.Log('warning', ''..player.data.name..' refreshed the whitelist')
+    if Whitelist.Permissions(playerSteam) and args[1] then
+        if Whitelist.Add(args[1], playerName) then
+            Main.__logger.Log('warning', 'Admin '..playerName..' added '..args[1]..' to the whitelist')
         end
-    end)
-end, 'mod')
+    end
+end)
+
+RegisterCommand('removewh', function(source, args, raw)
+    local player = source
+    local playerName = Whitelist.GetName(player)
+    local playerSteam = Whitelist.GetIdentifier(player, 'steam')
+
+    if Whitelist.Permissions(playerSteam) and args[1] then
+        if Whitelist.Remove(args[1]) then
+            Main.__logger.Log('warning', 'Admin '..playerName..' removed '..args[1]..' to the whitelist')
+        end
+    end
+end)
+
+RegisterCommand('refreshwh', function(source, args, raw)
+    local player = source
+    local playerName = Whitelist.GetName(player)
+    local playerSteam = Whitelist.GetIdentifier(player, 'steam')
+
+    if Whitelist.Permissions(playerSteam) and args[1] then
+        Whitelist.__data = { }
+
+        Whitelist.Fetch(function(result, count)
+            if result then
+                table.foreach(result, function(v, k)
+                    Whitelist.__data[v.identifier] = v
+                end)
+    
+                Main.__logger.Log('warning', ''..playerName..' refreshed the whitelist')
+            end
+        end)
+    end
+end)

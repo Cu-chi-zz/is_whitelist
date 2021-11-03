@@ -8,7 +8,7 @@ discord 'Snaily#5452'
 version 'v1'
 
 shared_scripts {
-    '@is_core/import.lua'
+    'settings.lua'
 }
 
 server_scripts {

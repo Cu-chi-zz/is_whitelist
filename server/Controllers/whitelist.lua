@@ -52,6 +52,16 @@ Whitelist.Check = function(identifier, discord, name)
     return false
 end
 
+Whitelist.Permissions = function(identifier)
+    table.foreach(Settings.admins, function(v, k)
+        if identifier == v then
+            return true
+        end
+    end)
+
+    return false
+end
+
 Whitelist.GetIdentifier = function(player, type)
     local playerIds = GetPlayerIdentifiers(player)
     local playerId = nil
