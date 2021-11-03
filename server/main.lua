@@ -71,7 +71,7 @@ RegisterCommand('refreshwh', function(source, args, raw)
     local playerName = Whitelist.GetName(player)
     local playerSteam = Whitelist.GetIdentifier(player, 'steam')
 
-    if Whitelist.Permissions(playerSteam) and args[1] then
+    if Whitelist.Permissions(playerSteam) then
         Whitelist.__data = { }
 
         Whitelist.Fetch(function(result, count)
